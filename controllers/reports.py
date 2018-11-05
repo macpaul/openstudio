@@ -2869,6 +2869,238 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
     return form
 
 
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_attendance_problem'))
+def attendance_problem_checkin():
+    """
+        List Problem Check-ins that occured
+    """
+    response.title = T("Reports")
+    response.subtitle = T("Attendance Problem Check-in")
+    response.view = 'general/only_content.html'
+
+    show = 'pending'
+    query = (db.classes_attendance_problem_checkin.Resolved == False)
+
+    if 'show_resolved' in request.vars:
+        show = request.vars['show_resolved']
+        session.attendance_problem_checkin_show = show
+        if show == 'pending':
+            query = (db.classes_attendance_problem_checkin.Resolved == False)
+        elif show == 'resolved':
+            query = (db.classes_attendance_problem_checkin.Resolved == True)
+    elif session.attendance_problem_checkin_show == 'resolved':
+        query = (db.classes_attendance_problem_checkin.Resolved == True)
+    else:
+        session.attendance_problem_checkin_show = show
+
+    header = THEAD(TR(TH(db.classes_attendance.classes_id.label),
+                     TH(db.classes_attendance.ClassDate.label),
+                     TH(db.classes_attendance.auth_customer_id.label),
+                     TH())  # buttons
+                  )
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    db.classes_attendance_problem_checkin.id.readable = False
+
+    rows = db(query).select(left=db.classes_attendance.on(db.classes_attendance_problem_checkin.classes_attendance_id==db.classes_attendance.id))
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        resolve = ''
+
+        mark_resolved = ''
+        # if delete_permission:
+        #     confirm_msg = T("Really delete this membership?")
+        #     onclick_del = "return confirm('" + confirm_msg + "');"
+        #     delete = os_gui.get_button('delete_notext',
+        #                                URL('membership_delete', vars={'cuID': customers_id,
+        #                                                               'cmID': row.id}),
+        #                                onclick=onclick_del,
+        #                                _class='pull-right')
+        # edit = ''
+        # if edit_permission:
+        #     edit = memberships_get_link_edit(row)
+
+        tr = TR(
+                TD(repr_row.classes_attendance.classes_id),
+                TD(repr_row.classes_attendance.ClassDate),
+                TD(repr_row.classes_attendance.auth_customer_id),
+                TD(resolve, mark_resolved))
+
+        table.append(tr)
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.attendance_problem_checkin_show)
+
+    back = DIV(archive_buttons)
+
+    content = table
+
+    return dict(back=back,
+
+                content=content)
+
+
+#
+# def attendance_classes_get_content(date_start, date_end, slID, soID):
+#     """
+#         Return list of classes with revenue for a selected period
+#     """
+#     one_day = datetime.timedelta(days=1)
+#     current_date = date_start
+#
+#     if len(ORGANIZATIONS) > 2:
+#         header = THEAD(TR(TH('Date'),
+#                           TH('Start'),
+#                           TH('Class Type'),
+#                           TH('Location'),
+#                           TH('Organization'),
+#                           TH('Teacher'),
+#                           TH('Teacher2'),
+#                           TH('Revenue'),
+#                           TH()))
+#     else:
+#         header = THEAD(TR(TH('Date'),
+#                           TH('Start'),
+#                           TH('Class Type'),
+#                           TH('Location'),
+#                           TH(),
+#                           TH('Teacher'),
+#                           TH('Teacher2'),
+#                           TH('Revenue'),
+#                           TH()))
+#     table = TABLE(header, _class='table table-hover table-striped')
+#     # Find all classes starting on the first day of the month
+#     while current_date <= date_end:
+#         # get list of today's classes.
+#         class_schedule = ClassSchedule(
+#             date=current_date,
+#             filter_id_school_location=slID,
+#             filter_id_sys_organization=soID,
+#         )
+#
+#         date_formatted = current_date.strftime(DATE_FORMAT)
+#
+#         rows = class_schedule.get_day_rows()
+#         for i, row in enumerate(rows):
+#             repr_row = list(rows[i:i + 1].render())[0]
+#             revenue = teacher_classes_get_class_revenue_total(row.classes.id, current_date)
+#
+#             if row.classes_otc.Status == 'cancelled':
+#                 if row.classes_otc.Description:
+#                     amount = max_string_length(row.classes_otc.Description, 12)
+#                 else:
+#                     amount = T('Cancelled')
+#             elif row.school_holidays.id:
+#                 amount = max_string_length(row.school_holidays.Description, 12)
+#             else:
+#                 amount = A(represent_float_as_amount(revenue['revenue_in_vat']),
+#                            _href=URL('teacher_classes_class_revenue', vars={'clsID':row.classes.id,
+#                                                                           'date':date_formatted}),
+#                            _target='_blank')
+#
+#             organization = ''
+#             if len(ORGANIZATIONS) > 2:
+#                 organization = repr_row.classes.sys_organizations_id or ''
+#
+#             tr = TR(
+#                 TD(current_date.strftime(DATE_FORMAT)),
+#                 TD(repr_row.classes.Starttime),
+#                 TD(repr_row.classes.school_classtypes_id),
+#                 TD(repr_row.classes.school_locations_id),
+#                 TD(organization),
+#                 TD(repr_row.classes_teachers.auth_teacher_id),
+#                 TD(repr_row.classes_teachers.auth_teacher_id2),
+#                 TD(amount),
+#                 TD(os_gui.get_button('next_no_text',
+#                                      URL('classes', 'attendance', vars={'clsID': row.classes.id,
+#                                                                         'date': date_formatted}),
+#                                      _class='pull-right',
+#                                      _target='_blank'))
+#             )
+#
+#             table.append(tr)
+#
+#         current_date += one_day
+#
+#     return table
+#
+#
+# def attendance_classes_get_form(year=TODAY_LOCAL.year,
+#                                 month=TODAY_LOCAL.month,
+#                                 slID=None,
+#                                 soID=None):
+#     """
+#     :param month: int 1 - 12
+#     :param year: int 1900 - 2999
+#     :param slID: db.school_locations.id
+#     :param soID: db.school_organizations.id
+#     :return: classes attendance filter form
+#     """
+#     loc_query = (db.school_locations.Archived == False)
+#     so_query = (db.sys_organizations.Archived == False)
+#
+#     months = get_months_list()
+#
+#     form = SQLFORM.factory(
+#         Field('month',
+#                requires=IS_IN_SET(months, zero=None),
+#                default=month,
+#                label=T("")),
+#         Field('year', 'integer',
+#               default=year,
+#               label=T("")),
+#         Field('slID',
+#               requires=IS_EMPTY_OR(IS_IN_DB(db(loc_query),
+#                                             'school_locations.id',
+#                                             '%(Name)s',
+#                                             zero=T('All locations'))),
+#               default=slID,
+#               label=T("")),
+#         Field('soID',
+#               requires=IS_EMPTY_OR(IS_IN_DB(db(so_query),
+#                                             'sys_organizations.id',
+#                                             '%(Name)s',
+#                                             zero=T('All organizations'))),
+#               default=soID,
+#               label=T("")),
+#         submit_button=T("Run report")
+#         )
+#     form.attributes['_name']  = 'form_select_date'
+#     form.attributes['_class'] = 'overview_form_select_date'
+#
+#     input_month = form.element('select[name=month]')
+#     input_year = form.element('input[name=year]')
+#     input_year.attributes['_type']     = 'number'
+#
+#     result = set_form_id_and_get_submit_button(form, 'MainForm')
+#     form = result['form']
+#     submit = result['submit']
+#
+#     location = ''
+#     if session.show_location:
+#         location = form.custom.widget.slID
+#
+#     organization = ''
+#     if len(ORGANIZATIONS) > 2:
+#         organization = form.custom.widget.soID
+#
+#     form = DIV(DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+#                    form.custom.widget.month,
+#                    form.custom.widget.year,
+#                    location,
+#                    organization,
+#                    form.custom.end,
+#                    _class='col-md-4'),
+#                _class = 'row')
+#
+#     return form
+#
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_classtypes():

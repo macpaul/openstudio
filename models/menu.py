@@ -475,6 +475,11 @@ def get_backend_menu():
                             False,
                             URL('reports', 'trialclasses', extension='')))
             #submenu.append((SPAN(os_gui.get_fa_icon('fa-compass'), ' ', T('Trial classes / cards')), False, URL('reports', 'trialclasses')))
+        if user_helpers.check_read_permission('reports_attendance_problem', user_id) or auth.has_membership(group_id='Admins'):
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Attendance Problem Check-in'))),
+                            False,
+                            URL('reports', 'attendance_problem_checkin', extension='')))
+            # submenu.append((SPAN(os_gui.get_fa_icon('fa-check-square-o'), ' ', T('Attendance')), False, URL('reports', 'attendance_classtypes')))
         if user_helpers.check_read_permission('reports_classtypes', user_id) or auth.has_membership(group_id='Admins'):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Attendance'))),
                             False,
