@@ -1020,6 +1020,7 @@ class AttendanceHelper:
                                            date,
                                            customer,
                                            trial=False,
+                                           problem=False,
                                            complementary=False,
                                            list_type='shop'):
         """
@@ -1045,6 +1046,7 @@ class AttendanceHelper:
             'classcards': [],
             'dropin': False,
             'trial': False,
+            'problem': False,
             'complementary': False
         }
 
@@ -1145,7 +1147,14 @@ class AttendanceHelper:
                 "Message": get_sys_property('shop_classes_trial_message') or ''
             }
 
-        # Complementary
+        # Problem
+        if problem:
+            options['problem'] = {
+                "Type": "problem",
+                "Name": T('Problem Check-in'),
+            }
+
+         # Complementary
         if complementary:
             options['complementary'] = {
                 "Type": "complementary",
@@ -1161,6 +1170,7 @@ class AttendanceHelper:
                                                      date,
                                                      customer,
                                                      trial=False,
+                                                     problem=False,
                                                      complementary=False,
                                                      list_type='shop',
                                                      controller=''):
@@ -1204,6 +1214,7 @@ class AttendanceHelper:
             date,
             customer,
             trial,
+            problem,
             complementary,
             list_type
         )
@@ -1417,6 +1428,29 @@ class AttendanceHelper:
                          _class='col-md-10 col-md-offset-1 col-xs-12')
 
             formatted_options.append(option)
+
+        # Problem
+        if problem and options['problem']:
+            problem = options['problem']
+
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'problem': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            option = DIV(DIV(problem['Name'],
+                             _class='col-md-3 bold'),
+                         DIV(T('Use this Check-in if there is a problem with the regular check-in'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            formatted_options.append(option)
+
 
         # Complementary
         if complementary and options['complementary']:
@@ -1984,6 +2018,47 @@ class AttendanceHelper:
                                                         clsID,
                                                         date,
                                                         'trial')
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_problem(self,
+                                         cuID,
+                                         clsID,
+                                         date,
+                                         booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(
+                auth_customer_id=cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=5,  # 5 = Problem Checkin
+                online_booking=False,
+                BookingStatus=booking_status
+            )
+            db.classes_attendance_problem_checkin.insert(
+                classes_attendance_id=caID,
+            )
+
 
         return dict(status=status, message=message, caID=caID)
 

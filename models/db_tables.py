@@ -2297,17 +2297,19 @@ def define_customers_classcards():
 
 
 def define_classes_attendance():
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")),
-              (3,T("Class card")),
-              (4,T("Complementary")),
+    types = [ (1, T("Trial class")),
+              (2, T("Drop In")),
+              (3, T("Class card")),
+              (4, T("Complementary")),
+              (5, T("Problem")),
     ]
     # None = subscription
     session.att_types_dict = { None:T("Subscription"),
                                1:T("Trial class"),
                                2:T("Drop In"),
                                3:T("Class card"),
-                               4:T("Complementary")}
+                               4:T("Complementary"),
+                               5:T("Problem")}
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),
@@ -2362,6 +2364,19 @@ def define_classes_attendance():
         db.classes_attendance.CreatedBy.default = auth.user.id
     except AttributeError:
         pass
+
+
+def define_classes_attendance_problem_checkin():
+    db.define_table('classes_attendance_problem_checkin',
+        Field('classes_attendance_id',
+              db.classes_attendance,
+              required= True,
+              label= T("Attended Class")),
+        Field('Resolved', 'boolean',
+              default=False,
+              label= T('Status')
+              ))
+
 
 
 def represent_customer_subscription(value, row):
@@ -5902,6 +5917,7 @@ define_classes_reservation_cancelled()
 define_classes_waitinglist()
 define_classes_attendance()
 define_classes_attendance_override()
+define_classes_attendance_problem_checkin()
 define_teachers_classtypes()
 define_classes_subteachers()
 define_classes_notes()
