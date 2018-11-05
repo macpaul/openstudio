@@ -2924,7 +2924,10 @@ def attendance_problem_checkin():
                                           URL('attendance_problem_checkin_accept', vars= {'pchinID':row.classes_attendance_problem_checkin.id}),
                                           title= T('Accept Checkin'),
                                           _class='pull-right')
-        cuprofile = os_gui
+        cuprofile = os_gui.get_button('user',
+                                      URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
+                                      title= T("Customer Profile"),
+                                      _class= 'pull-right')
         # if delete_permission:
         #     confirm_msg = T("Really delete this membership?")
         #     onclick_del = "return confirm('" + confirm_msg + "');"
@@ -2942,7 +2945,7 @@ def attendance_problem_checkin():
                 TD(repr_row.classes_attendance.classes_id),
                 TD(repr_row.classes_attendance.ClassDate),
                 TD(repr_row.classes_attendance.auth_customer_id),
-                TD( mark_resolved, resolve))
+                TD( mark_resolved, resolve, cuprofile))
 
         table.append(tr)
     archive_buttons = os_gui.get_archived_radio_buttons(
