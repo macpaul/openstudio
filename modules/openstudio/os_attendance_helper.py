@@ -1631,7 +1631,38 @@ class AttendanceHelper:
         message_no_credits = T('No credits remaining on this subscription')
 
         if signed_in:
-            message = T("Customer has already booked or is already checked-in")
+            row = db((db.classes_attendance.auth_customer_id == cuID) & \
+                     (db.classes_attendance.classes_id == clsID) & \
+                     (db.classes_attendance.ClassDate == date)).select()
+            if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                if not credits_remaining and credits_hard_limit:
+                    # return message, don't sign in
+                    message = message_no_credits
+                else:
+                    query = ((db.classes_attendance.auth_customer_id == cuID) & \
+                             (db.classes_attendance.classes_id == clsID) & \
+                             (db.classes_attendance.ClassDate == date))
+                    row = db(query).select().first()
+                    if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+
+                        new_row = db(db.classes_attendance.id == row.id).select().first()
+                        new_row.update_record(
+                            auth_customer_id=cuID,
+                            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                            classes_id=clsID,
+                            ClassDate=date,
+                            AttendanceType=None,  # None = subscription
+                            customers_subscriptions_id=csID,
+                            online_booking=online_booking,
+                            BookingStatus=booking_status
+                        )
+
+                        problemcheckinrow = db(
+                            db.classes_attendance_problem_checkin.classes_attendance_id == row.id).select().first()
+                        problemcheckinrow.update_record(
+                            Resolved=True)
+            else:
+                message = T("Already booked or checked in for this class")
         elif not credits_remaining and credits_hard_limit:
             # return message, don't sign in
             message = message_no_credits
@@ -1906,7 +1937,33 @@ class AttendanceHelper:
         if classes_available:
             signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
             if signed_in:
-                message = T("Already checked in for this class")
+                row = db((db.classes_attendance.auth_customer_id == cuID) & \
+                         (db.classes_attendance.classes_id == clsID) & \
+                         (db.classes_attendance.ClassDate == date)).select()
+                if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                    query = ((db.classes_attendance.auth_customer_id == cuID) & \
+                             (db.classes_attendance.classes_id == clsID) & \
+                             (db.classes_attendance.ClassDate == date))
+                    row = db(query).select().first()
+                    if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                        new_row = db(db.classes_attendance.id == row.id).select().first()
+                        new_row.update_record(
+                            auth_customer_id=cuID,
+                            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                            classes_id=clsID,
+                            ClassDate=date,
+                            AttendanceType=3,  # 3 = classcard
+                            customers_classcards_id=ccdID,
+                            online_booking=online_booking,
+                            BookingStatus=booking_status
+                        )
+
+                        problemcheckinrow = db(
+                            db.classes_attendance_problem_checkin.classes_attendance_id == row.id).select().first()
+                        problemcheckinrow.update_record(
+                            Resolved=True)
+                else:
+                    message = T("Already checked in for this class")
             else:
                 status = 'success'
 
@@ -1953,7 +2010,33 @@ class AttendanceHelper:
 
         signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
         if signed_in:
-            message = T("Already checked in for this class")
+
+            row = db((db.classes_attendance.auth_customer_id == cuID) & \
+                     (db.classes_attendance.classes_id == clsID) & \
+                     (db.classes_attendance.ClassDate == date)).select()
+            if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                query = ((db.classes_attendance.auth_customer_id == cuID) & \
+                         (db.classes_attendance.classes_id == clsID) & \
+                         (db.classes_attendance.ClassDate == date))
+                row = db(query).select().first()
+                if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                    new_row = db(db.classes_attendance.id == row.id).select().first()
+                    new_row.update_record(
+                        auth_customer_id=cuID,
+                        CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                        classes_id=clsID,
+                        ClassDate=date,
+                        AttendanceType=2,  # 2 = drop in class
+                        online_booking=online_booking,
+                        BookingStatus=booking_status
+                    )
+
+                    problemcheckinrow = db(
+                        db.classes_attendance_problem_checkin.classes_attendance_id == row.id).select().first()
+                    problemcheckinrow.update_record(
+                        Resolved=True)
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
             caID = db.classes_attendance.insert(
@@ -1999,7 +2082,30 @@ class AttendanceHelper:
         signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
-            message = T("Already checked in for this class")
+            query = ((db.classes_attendance.auth_customer_id == cuID) & \
+                     (db.classes_attendance.classes_id == clsID) & \
+                     (db.classes_attendance.ClassDate == date))
+            row = db(query).select().first()
+            if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                print row.id
+                new_row= db(db.classes_attendance.id==row.id).select().first()
+                new_row.update_record(
+                    auth_customer_id=cuID,
+                    CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                    classes_id=clsID,
+                    ClassDate=date,
+                    AttendanceType=1,  # 1 = trial class
+                    online_booking=online_booking,
+                    BookingStatus=booking_status
+                )
+                print new_row
+                problemcheckinrow = db(db.classes_attendance_problem_checkin.classes_attendance_id==row.id).select().first()
+                problemcheckinrow.update_record(
+                    Resolved=True)
+
+            else:
+                message = T("Already checked in for this class")
+
         else:
             status = 'ok'
             caID = db.classes_attendance.insert(
@@ -2084,7 +2190,30 @@ class AttendanceHelper:
         signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
-            message = T("Already checked in for this class")
+            query = ((db.classes_attendance.auth_customer_id == cuID) & \
+                     (db.classes_attendance.classes_id == clsID) & \
+                     (db.classes_attendance.ClassDate == date))
+            row = db(query).select().first()
+            if (db.classes_attendance_problem_checkin.classes_attendance_id == row.id):
+                print row.id
+                new_row = db(db.classes_attendance.id == row.id).select().first()
+                new_row.update_record(
+                    auth_customer_id=cuID,
+                    CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                    classes_id=clsID,
+                    ClassDate=date,
+                    AttendanceType=4,  # 4 = Complementary class
+                    online_booking=False,
+                    BookingStatus=booking_status
+                )
+                print new_row
+                problemcheckinrow = db(
+                    db.classes_attendance_problem_checkin.classes_attendance_id == row.id).select().first()
+                problemcheckinrow.update_record(
+                    Resolved=True)
+
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
             caID = db.classes_attendance.insert(
