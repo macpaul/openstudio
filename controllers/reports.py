@@ -2912,8 +2912,19 @@ def attendance_problem_checkin():
         repr_row = list(rows[i:i + 1].render())[0]
 
         resolve = ''
-
+        resolve = os_gui.get_button('edit',
+                                    URL('classes', 'attendance_booking_options',
+                                        vars = {'clsID': row.classes_attendance.classes_id,
+                                                'cuID': row.classes_attendance.auth_customer_id,
+                                                'date': row.classes_attendance.ClassDate}),
+                                    title= T("Resolve"),
+                                    _class= 'pull-right')
         mark_resolved = ''
+        mark_resolved = os_gui.get_button('accept',
+                                          URL('attendance_problem_checkin_accept', vars= {'pchinID':row.classes_attendance_problem_checkin.id}),
+                                          title= T('Accept Checkin'),
+                                          _class='pull-right')
+        cuprofile = os_gui
         # if delete_permission:
         #     confirm_msg = T("Really delete this membership?")
         #     onclick_del = "return confirm('" + confirm_msg + "');"
@@ -2926,11 +2937,12 @@ def attendance_problem_checkin():
         # if edit_permission:
         #     edit = memberships_get_link_edit(row)
 
+        # class_name= db(db.classes.id== repr_row.classes_attendance.classes_id).select(db.classes.)
         tr = TR(
                 TD(repr_row.classes_attendance.classes_id),
                 TD(repr_row.classes_attendance.ClassDate),
                 TD(repr_row.classes_attendance.auth_customer_id),
-                TD(resolve, mark_resolved))
+                TD( mark_resolved, resolve))
 
         table.append(tr)
     archive_buttons = os_gui.get_archived_radio_buttons(
@@ -2945,6 +2957,13 @@ def attendance_problem_checkin():
                 content=content)
 
 
+def attendance_problem_checkin_accept():
+
+    pchinID = request.vars['pchinID']
+
+    db.classes_attendance_problem_checkin[pchinID] = dict(Resolved=True)
+
+    redirect(URL('attendance_problem_checkin'))
 #
 # def attendance_classes_get_content(date_start, date_end, slID, soID):
 #     """
