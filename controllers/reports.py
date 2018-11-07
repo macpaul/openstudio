@@ -2934,17 +2934,13 @@ def attendance_problem_checkin():
                                     title= T("Check-in Options"),
                                     _class= 'pull-right')
 
-        cuprofile = os_gui.get_button('user',
-                                      URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
-                                      title= T("Customer Profile"),
-                                      _class= 'pull-right')
         tr = TR(TD(repr_row.auth_user.thumbsmall),
                 TD(repr_row.classes_attendance.auth_customer_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.classes_attendance.ClassDate),
                 TD(repr_row.classes.Starttime),
                 TD(repr_row.classes.school_locations_id),
-                TD(resolve, cuprofile))
+                TD(resolve))
 
         table.append(tr)
     #If dependance, which tab is shown as the current, aka shown in blue
