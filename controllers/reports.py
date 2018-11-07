@@ -2900,7 +2900,8 @@ def attendance_problem_checkin():
     else:
         query = (db.classes_attendance_problem_checkin.Resolved == False)
 
-    header = THEAD(TR(TH("Customer"),
+    header = THEAD(TR(TH(''),
+                     TH("Customer"),
                      TH(db.classes.school_classtypes_id.label),
                      TH(db.classes_attendance.ClassDate.label),
                      TH(db.classes.Starttime.label),
@@ -2915,8 +2916,10 @@ def attendance_problem_checkin():
     rows = db(query).select(db.classes_attendance_problem_checkin.ALL,
                             db.classes_attendance.ALL,
                             db.classes.ALL,
+                            db.auth_user.ALL,
                             left=(db.classes_attendance.on(db.classes_attendance_problem_checkin.classes_attendance_id == db.classes_attendance.id),
-                                  db.classes.on(db.classes_attendance.classes_id == db.classes.id)))
+                                  db.classes.on(db.classes_attendance.classes_id == db.classes.id),
+                                  db.auth_user.on(db.classes_attendance.auth_customer_id== db.auth_user.id)))
     # print rows
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -2935,7 +2938,8 @@ def attendance_problem_checkin():
                                       URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
                                       title= T("Customer Profile"),
                                       _class= 'pull-right')
-        tr = TR(TD(repr_row.classes_attendance.auth_customer_id),
+        tr = TR(TD(repr_row.auth_user.thumbsmall),
+                TD(repr_row.classes_attendance.auth_customer_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.classes_attendance.ClassDate),
                 TD(repr_row.classes.Starttime),
