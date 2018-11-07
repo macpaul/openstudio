@@ -95,25 +95,6 @@ def test_classes_attendance_problem_checkin_resolved(client, web2py):
     assert str(row.auth_customer_id) in client.text
 
 
-def test_classes_attendance_problem_accept_checkin(client, web2py):
-    """
-    Can we list a pending problem Check-in
-    """
-
-    prepare_classes(web2py, created_on=datetime.date(2010, 1, 1))
-
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-
-    url = '/reports/attendance_problem_checkin_accept?pchinID=1'
-    client.get(url)
-    assert client.status == 200
-
-    #Now Both ProblemCheckins are Resolved
-    assert (web2py.db(web2py.db.classes_attendance_problem_checkin.Resolved==True).count() == 2)
-    # print client.text
 
 
 def test_classes_attendance_problem_checkin_change_checkin(client, web2py):

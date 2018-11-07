@@ -2930,12 +2930,7 @@ def attendance_problem_checkin():
                                                 'date': row.classes_attendance.ClassDate}),
                                     title= T("Check-in Options"),
                                     _class= 'pull-right')
-        mark_resolved = ''
-        if show =='pending':
-            mark_resolved = os_gui.get_button('accept',
-                                              URL('attendance_problem_checkin_accept', vars= {'pchinID':row.classes_attendance_problem_checkin.id}),
-                                              title= T('Accept Check-in'),
-                                              _class='pull-right')
+
         cuprofile = os_gui.get_button('user',
                                       URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
                                       title= T("Customer Profile"),
@@ -2945,7 +2940,7 @@ def attendance_problem_checkin():
                 TD(repr_row.classes_attendance.ClassDate),
                 TD(repr_row.classes.Starttime),
                 TD(repr_row.classes.school_locations_id),
-                TD( mark_resolved, resolve, cuprofile))
+                TD(resolve, cuprofile))
 
         table.append(tr)
     #If dependance, which tab is shown as the current, aka shown in blue
@@ -2995,14 +2990,6 @@ def attendance_problem_checkin():
                 content=content)
 
 
-def attendance_problem_checkin_accept():
-
-    pchinID = request.vars['pchinID']
-
-    db.classes_attendance_problem_checkin[pchinID] = dict(Resolved=True)
-
-    redirect(URL('attendance_problem_checkin'))
-#
 # def attendance_classes_get_content(date_start, date_end, slID, soID):
 #     """
 #         Return list of classes with revenue for a selected period
