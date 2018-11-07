@@ -39,6 +39,113 @@ from populate_os_tables import populate_reports_attendance_organizations
     #assert customer.postcode_asint == 190100110
 
 
+def test_classes_attendance_problem_checkin_pending(client, web2py):
+    """
+    Can we list a pending problem Check-in
+    """
+
+    prepare_classes(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    url = '/reports/attendance_problem_checkin'
+    client.get(url)
+    assert client.status == 200
+
+    assert (web2py.db(web2py.db.classes_attendance.AttendanceType==5).count()==2)
+    # print client.text
+
+    #Get the pending Problem Checkin
+    pending = web2py.db(web2py.db.classes_attendance_problem_checkin.Resolved==False).select().first()
+    row = web2py.db(web2py.db.classes_attendance.id==pending.classes_attendance_id).select().first()
+
+    #Check if Data is in Clienttext
+    assert str(row.ClassDate) in client.text
+    assert str(row.auth_customer_id) in client.text
+
+
+def test_classes_attendance_problem_checkin_resolved(client, web2py):
+    """
+    Can we list a pending problem Check-in
+    """
+
+    prepare_classes(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    url = '/reports/attendance_problem_checkin?show_resolved=resolved'
+    client.get(url)
+    assert client.status == 200
+
+    assert (web2py.db(web2py.db.classes_attendance.AttendanceType==5).count()==2)
+    # print client.text
+
+    #Get the pending Problem Checkin
+    pending = web2py.db(web2py.db.classes_attendance_problem_checkin.Resolved==True).select().first()
+    row = web2py.db(web2py.db.classes_attendance.id==pending.classes_attendance_id).select().first()
+
+    #Check if Data is in Clienttext
+    assert str(row.ClassDate) in client.text
+    assert str(row.auth_customer_id) in client.text
+
+
+def test_classes_attendance_problem_accept_checkin(client, web2py):
+    """
+    Can we list a pending problem Check-in
+    """
+
+    prepare_classes(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    url = '/reports/attendance_problem_checkin_accept?pchinID=1'
+    client.get(url)
+    assert client.status == 200
+
+    #Now Both ProblemCheckins are Resolved
+    assert (web2py.db(web2py.db.classes_attendance_problem_checkin.Resolved==True).count() == 2)
+    # print client.text
+
+
+def test_classes_attendance_problem_checkin_change_checkin(client, web2py):
+    """
+    Can we list a pending problem Check-in
+    """
+
+    prepare_classes(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    url = '/reports/attendance_problem_checkin'
+    client.get(url)
+    assert client.status == 200
+
+    #Possible to change and update checkin
+    url= '/classes/class_book?clsID=1&cuID=1001&date=2014-02-03&trial=true'
+    client.get(url)
+    assert client.status == 200
+
+    #Check-in is in resolved
+    assert (web2py.db(web2py.db.classes_attendance_problem_checkin.Resolved == True).count() == 2)
+
+
+    #We got redirected correctly
+    assert 'Attendance Problem Check-in' in client.text
+
+
+
 def test_customers_inactive(client, web2py):
     """
         Can we list customers without activity after a given date?

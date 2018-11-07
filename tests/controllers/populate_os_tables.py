@@ -1056,6 +1056,23 @@ def prepare_classes(web2py,
                                             AttendanceType=3,
                                             customers_classcards_id=1)
 
+
+        # Problem Checkin
+        problem1ID = web2py.db.classes_attendance.insert(auth_customer_id=cuID,
+                                            classes_id=1,
+                                            ClassDate='2014-02-03',
+                                            AttendanceType=5,)
+
+        web2py.db.classes_attendance_problem_checkin.insert(classes_attendance_id= problem1ID)
+
+        problem2ID = web2py.db.classes_attendance.insert(auth_customer_id=cuID,
+                                            classes_id=1,
+                                            ClassDate='2014-02-10',
+                                            AttendanceType=5)
+
+        web2py.db.classes_attendance_problem_checkin.insert(classes_attendance_id=problem2ID,
+                                                            Resolved = True)
+
     # Class notes
     web2py.db.classes_notes.insert(
         classes_id = 1,
