@@ -3247,6 +3247,8 @@ def attendance_sign_in_get_returl_url(clsID, date_formatted, cuID):
                   vars={'clsID': clsID,
                         'date' : date_formatted},
                   extension='')
+    elif session.classes_attendance_signin_back == 'problem_checkin':
+        url = URL('reports', 'attendance_problem_checkin')
 
     return url
 

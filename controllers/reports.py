@@ -2882,8 +2882,11 @@ def attendance_problem_checkin():
     response.view = 'general/only_content.html'
 
     show = 'pending'
-    query = (db.classes_attendance_problem_checkin.Resolved == False)
+    #To come back successfully after changing a check-in
+    session.classes_attendance_signin_back = 'problem_checkin'
+    # print session.classes_attendance_signin_back
 
+    #To determine if Pending or Resolved are shown
     if 'show_resolved' in request.vars:
         show = request.vars['show_resolved']
         session.attendance_problem_checkin_show = show
@@ -2892,9 +2895,10 @@ def attendance_problem_checkin():
         elif show == 'resolved':
             query = (db.classes_attendance_problem_checkin.Resolved == True)
     elif session.attendance_problem_checkin_show == 'resolved':
+        show = session.attendance_problem_checkin_show
         query = (db.classes_attendance_problem_checkin.Resolved == True)
     else:
-        session.attendance_problem_checkin_show = show
+        query = (db.classes_attendance_problem_checkin.Resolved == False)
 
     header = THEAD(TR(TH(db.classes_attendance.classes_id.label),
                      TH(db.classes_attendance.ClassDate.label),
@@ -2912,35 +2916,24 @@ def attendance_problem_checkin():
         repr_row = list(rows[i:i + 1].render())[0]
 
         resolve = ''
+
         resolve = os_gui.get_button('edit',
                                     URL('classes', 'attendance_booking_options',
                                         vars = {'clsID': row.classes_attendance.classes_id,
                                                 'cuID': row.classes_attendance.auth_customer_id,
                                                 'date': row.classes_attendance.ClassDate}),
-                                    title= T("Resolve"),
+                                    title= T("Check-in Options"),
                                     _class= 'pull-right')
         mark_resolved = ''
-        mark_resolved = os_gui.get_button('accept',
-                                          URL('attendance_problem_checkin_accept', vars= {'pchinID':row.classes_attendance_problem_checkin.id}),
-                                          title= T('Accept Checkin'),
-                                          _class='pull-right')
+        if show =='pending':
+            mark_resolved = os_gui.get_button('accept',
+                                              URL('attendance_problem_checkin_accept', vars= {'pchinID':row.classes_attendance_problem_checkin.id}),
+                                              title= T('Accept Check-in'),
+                                              _class='pull-right')
         cuprofile = os_gui.get_button('user',
                                       URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
                                       title= T("Customer Profile"),
                                       _class= 'pull-right')
-        # if delete_permission:
-        #     confirm_msg = T("Really delete this membership?")
-        #     onclick_del = "return confirm('" + confirm_msg + "');"
-        #     delete = os_gui.get_button('delete_notext',
-        #                                URL('membership_delete', vars={'cuID': customers_id,
-        #                                                               'cmID': row.id}),
-        #                                onclick=onclick_del,
-        #                                _class='pull-right')
-        # edit = ''
-        # if edit_permission:
-        #     edit = memberships_get_link_edit(row)
-
-        # class_name= db(db.classes.id== repr_row.classes_attendance.classes_id).select(db.classes.)
         tr = TR(
                 TD(repr_row.classes_attendance.classes_id),
                 TD(repr_row.classes_attendance.ClassDate),
@@ -2948,14 +2941,49 @@ def attendance_problem_checkin():
                 TD( mark_resolved, resolve, cuprofile))
 
         table.append(tr)
-    archive_buttons = os_gui.get_archived_radio_buttons(
-        session.attendance_problem_checkin_show)
+    #If dependance, which tab is shown as the current, aka shown in blue
+    if show == 'pending':
+        Pending = os_gui.get_button(
+            'noicon',
+            URL('attendance_problem_checkin', vars= {'show_resolved':'pending'}),
+            title=T("Pending"),
+            tooltip="Get Pending Checkin Problems",
+            btn_class='btn-primary'
+        )
 
-    back = DIV(archive_buttons)
+        Resolved = os_gui.get_button(
+            'noicon',
+            URL('attendance_problem_checkin', vars= {'show_resolved':'resolved'}),
+            title=T("Resolved"),
+            tooltip=T("Have a look at the Resolved Check-in Problems")
+        )
+    if show == 'resolved':
+        Pending = os_gui.get_button(
+            'noicon',
+            URL('attendance_problem_checkin', vars={'show_resolved': 'pending'}),
+            title=T("Pending"),
+            tooltip="Get Pending Checkin Problems",
+
+        )
+
+        Resolved = os_gui.get_button(
+            'noicon',
+            URL('attendance_problem_checkin', vars={'show_resolved': 'resolved'}),
+            title=T("Resolved"),
+            tooltip=T("Have a look at the Resolved Check-in Problems"),
+            btn_class='btn-primary'
+        )
+
+    tools = DIV(
+        Pending,
+        Resolved,
+    )
+
+
 
     content = table
 
-    return dict(back=back,
+    return dict(header_tools=tools,
 
                 content=content)
 
