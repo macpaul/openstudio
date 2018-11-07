@@ -2900,9 +2900,11 @@ def attendance_problem_checkin():
     else:
         query = (db.classes_attendance_problem_checkin.Resolved == False)
 
-    header = THEAD(TR(TH(db.classes_attendance.classes_id.label),
+    header = THEAD(TR(TH("Customer"),
+                     TH(db.classes.school_classtypes_id.label),
                      TH(db.classes_attendance.ClassDate.label),
-                     TH(db.classes_attendance.auth_customer_id.label),
+                     TH(db.classes.Starttime.label),
+                     TH(db.classes.school_locations_id.label),
                      TH())  # buttons
                   )
 
@@ -2910,8 +2912,12 @@ def attendance_problem_checkin():
 
     db.classes_attendance_problem_checkin.id.readable = False
 
-    rows = db(query).select(left=db.classes_attendance.on(db.classes_attendance_problem_checkin.classes_attendance_id==db.classes_attendance.id))
-
+    rows = db(query).select(db.classes_attendance_problem_checkin.ALL,
+                            db.classes_attendance.ALL,
+                            db.classes.ALL,
+                            left=(db.classes_attendance.on(db.classes_attendance_problem_checkin.classes_attendance_id == db.classes_attendance.id),
+                                  db.classes.on(db.classes_attendance.classes_id == db.classes.id)))
+    # print rows
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
@@ -2919,7 +2925,7 @@ def attendance_problem_checkin():
 
         resolve = os_gui.get_button('edit',
                                     URL('classes', 'attendance_booking_options',
-                                        vars = {'clsID': row.classes_attendance.classes_id,
+                                        vars = {'clsID': row.classes.id,
                                                 'cuID': row.classes_attendance.auth_customer_id,
                                                 'date': row.classes_attendance.ClassDate}),
                                     title= T("Check-in Options"),
@@ -2934,10 +2940,11 @@ def attendance_problem_checkin():
                                       URL('customers', 'classes_attendance', vars={'cuID':row.classes_attendance.auth_customer_id}),
                                       title= T("Customer Profile"),
                                       _class= 'pull-right')
-        tr = TR(
-                TD(repr_row.classes_attendance.classes_id),
+        tr = TR(TD(repr_row.classes_attendance.auth_customer_id),
+                TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.classes_attendance.ClassDate),
-                TD(repr_row.classes_attendance.auth_customer_id),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
                 TD( mark_resolved, resolve, cuprofile))
 
         table.append(tr)
