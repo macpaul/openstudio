@@ -673,6 +673,34 @@ def test_attendance_list_add_customer(client, web2py):
 #     assert client.status == 200
 #     assert unicode(card_total) + ' Classes remaining' in client.text
 
+def test_class_book_problem_checkin(client, web2py):
+    """
+        Can we book a class on a subscription?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False, credits=True)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?clsID=1&cuID=1001&date=2014-01-06&problem=true'
+
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(1)
+    assert clatt.ClassDate == datetime.date(2014, 1, 6)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 5
+
+    assert ((web2py.db.classes_attendance_problem_checkin.classes_attendance_id== clatt.id)&\
+            (web2py.db.classes_attendance_problem_checkin.Resolved==False))
+
+
 def test_class_book_subscription(client, web2py):
     """
         Can we book a class on a subscription?
