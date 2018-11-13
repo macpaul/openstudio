@@ -58,7 +58,18 @@ class PopulateDemoData:
         return buttons
 
     def populate_all(self):
-        self.populate_tax_rates()
+        db = current.db
+
+        db.tax_rates.insert(
+            Name='BTW 21%',
+            Percentage=21
+        )
+
+        db.tax_rates.insert(
+            Name='BTW 6%',
+            Percentage=6
+        )
+        # self.populate_tax_rates()
         self.populate_school_classtypes()
         self.populate_school_subscriptions()
         self.populate_auth_user_teachers()
@@ -69,8 +80,8 @@ class PopulateDemoData:
 
 
     def populate_school_classtypes(self):
-
-
+        # db = self.db
+        db = current.db
         db.school_classtypes.insert(
                 Name='Ashtanga yoga' ,
                 AllowAPI=True,
@@ -93,6 +104,8 @@ class PopulateDemoData:
 
     def populate_school_locations(self):
 
+        # db = self.db
+        db = current.db
 
         db.school_locations.insert(
                 Name='Maastricht',
@@ -111,6 +124,7 @@ class PopulateDemoData:
 
 
     def populate_tax_rates(self):
+       # db = self.db
        db = current.db
 
        db.tax_rates.insert(
@@ -125,6 +139,8 @@ class PopulateDemoData:
 
 
     def populate_school_subscriptions(self):
+        # db = self.db
+        db = current.db
 
         # 1
         db.school_subscriptions.insert(
@@ -211,6 +227,7 @@ class PopulateDemoData:
             auth.user.ids 2 and 3
         """
 
+        db = current.db
 
         db.auth_user.insert(
             first_name = 'first',
@@ -233,12 +250,13 @@ class PopulateDemoData:
 
 
     def populate_customers(self):
+        db = current.db
 
         # populate(web2py.db.school_discovery, 3)
         # populate_school_locations(web2py, 2)
         # populate(web2py.db.school_levels, 3)
         # populate(web2py.db.school_languages, 2)
-        created_on = TODAY_LOCAL
+        # created_on = TODAY_LOCAL
         nr_of_customers = 50
 
         for i in range(1, nr_of_customers+1):
@@ -262,18 +280,21 @@ class PopulateDemoData:
                 school_locations_id = school_locations_id,
                 employee=False,
                 teacher=False,
-                created_on=created_on)
+                # created_on=created_on
+            )
 
-        web2py.db.commit()
+
 
 
     def populate_school_classcards(self,
             nr=1,
             trialcard=True,
             membership_required=False):
+
         """
             Add 'nr' of cards to school_classcards
         """
+        db = current.db
 
 
         i = 0
@@ -318,6 +339,7 @@ class PopulateDemoData:
        """
             Add a membership with a price
         """
+       db = current.db
 
 
 
@@ -333,7 +355,7 @@ class PopulateDemoData:
        if price:
            db.school_memberships_price.insert(
                school_memberships_id = 1,
-               Startdate = '1900-01-01',
+               Startdate = '2000-01-01',
                Price = 40,
                tax_rates_id=1)
 
