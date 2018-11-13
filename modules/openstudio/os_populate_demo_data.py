@@ -257,7 +257,7 @@ class PopulateDemoData:
         # populate(web2py.db.school_levels, 3)
         # populate(web2py.db.school_languages, 2)
         # created_on = TODAY_LOCAL
-        nr_of_customers = 50
+        nr_of_customers = 20
 
         for i in range(1, nr_of_customers+1):
             if i < 5:

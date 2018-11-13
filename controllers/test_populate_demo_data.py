@@ -9,6 +9,6 @@ def index():
 
     PDD = PopulateDemoData()
 
-    content= PDD.get_buttons()
+    content= PDD.populate_all()
 
     return dict(content = content)
