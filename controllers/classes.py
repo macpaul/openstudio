@@ -4982,6 +4982,10 @@ def sub_avail_accept():
     cotc.auth_teacher_id = row.auth_teacher_id
     cotc.update_record()
 
+    #Send Email
+
+    # sub_avail_accept_send_mail(cotcsaID)
+
     # Reject all others
     query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
             (db.classes_otc_sub_avail.id != cotcsaID)
@@ -4999,8 +5003,16 @@ def sub_avail_decline():
 
     db.classes_otc_sub_avail[cotcsaID] = dict(Accepted = False)
 
+    sub_avail_decline_send_mail(cotcsaID)
+
     redirect(sub_request_get_return_url())
 
+
+def sub_avail_decline_send_mail(cotcsaID):
+    """
+    Send a decline email
+    """
+    print 'Here comes an email'
     
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_revenue'))
