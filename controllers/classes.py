@@ -5018,14 +5018,14 @@ def sub_avail_decline_send_mail(cotcsaID):
     # print (str(teacher_row.full_name) + ' gets a rejection email')
 
     osmail = OsMail()
-    # msgID = osmail.render_email_template(
-    #     'teacher_reject_sub_request',
-    #
-    # )
-    msgID = db.messages.insert(
-        msg_subject='subject test email',
-        msg_content='Test Content email'
+    msgID = osmail.render_email_template(
+        'teacher_reject_sub_request',
+        classes_otc_sub_avail_id=cotcsaID
     )
+    # msgID = db.messages.insert(
+    #     msg_subject='subject test email',
+    #     msg_content='Test Content email'
+    # )
     cuID = teacher_row.id
 
     osmail.send(msgID, cuID)
