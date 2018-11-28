@@ -231,7 +231,29 @@ class OsMail:
         ))
 
 
-    #def _render_email_template_teacher_accept_sub_request
+    def _render_email_template_teacher_accept_sub_request(self, template_content, classes_otc_sub_avail_id):
+        """
+        Render email to send to rejected sub teacher
+        :param template_content: html template code from db.sys_properties
+        :return:
+        """
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        subrow = db.classes_otc_sub_avail(id = classes_otc_sub_avail_id)
+        teacher = db.auth_user(id = subrow.auth_teacher_id)
+        classes_otc = db.classes_otc (id =subrow.classes_otc_id)
+        query = (db.classes.id == classes_otc.classes_id)
+        row = db(query).select()
+
+        repr_row = row.render(0)
+        return XML(template_content.format(
+            teacher_name = teacher.full_name,
+            class_location = repr_row.school_locations_id,
+            class_type =repr_row.school_classtypes_id,
+            class_date = classes_otc.ClassDate,
+            class_starttime = repr_row.Starttime,
+        ))
 
 
     def _render_email_workshops_info_mail(self, wspc, wsp, ws):
@@ -345,6 +367,10 @@ class OsMail:
         elif email_template == 'teacher_reject_sub_request':
             subject = T('Sub request declined')
             content = self._render_email_template_teacher_reject_sub_request(template_content, classes_otc_sub_avail_id)
+
+        elif email_template == 'teacher_accept_sub_request':
+            subject = T('Sub request accepted')
+            content = self._render_email_template_teacher_accept_sub_request(template_content, classes_otc_sub_avail_id)
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

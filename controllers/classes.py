@@ -4983,8 +4983,8 @@ def sub_avail_accept():
     cotc.update_record()
 
     #Send Email
+    sub_avail_accept_send_mail(cotcsaID)
 
-    # sub_avail_accept_send_mail(cotcsaID)
 
     # Reject all others
     query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
@@ -5020,6 +5020,29 @@ def sub_avail_decline_send_mail(cotcsaID):
     osmail = OsMail()
     msgID = osmail.render_email_template(
         'teacher_reject_sub_request',
+        classes_otc_sub_avail_id=cotcsaID
+    )
+    # msgID = db.messages.insert(
+    #     msg_subject='subject test email',
+    #     msg_content='Test Content email'
+    # )
+    cuID = teacher_row.id
+
+    osmail.send(msgID, cuID)
+
+
+def sub_avail_accept_send_mail(cotcsaID):
+    """
+    Send a decline email
+    """
+    from openstudio.os_mail import OsMail
+    cotcsarow = db.classes_otc_sub_avail(id = cotcsaID)
+    teacher_row = db.auth_user(id = cotcsarow.auth_teacher_id)
+    # print (str(teacher_row.full_name) + ' gets a rejection email')
+
+    osmail = OsMail()
+    msgID = osmail.render_email_template(
+        'teacher_accept_sub_request',
         classes_otc_sub_avail_id=cotcsaID
     )
     # msgID = db.messages.insert(
