@@ -5013,8 +5013,8 @@ def sub_avail_decline_send_mail(cotcsaID):
     Send a decline email
     """
     from openstudio.os_mail import OsMail
-    cotcsarow = db.classes_otc_sub_avail(id = cotcsaID)
-    teacher_row = db.auth_user(id = cotcsarow.auth_teacher_id)
+    subrow = db.classes_otc_sub_avail(id=cotcsaID)
+    teacher_row = db.auth_user(id=subrow.auth_teacher_id)
     # print (str(teacher_row.full_name) + ' gets a rejection email')
 
     osmail = OsMail()
@@ -5022,13 +5022,7 @@ def sub_avail_decline_send_mail(cotcsaID):
         'teacher_reject_sub_request',
         classes_otc_sub_avail_id=cotcsaID
     )
-    # msgID = db.messages.insert(
-    #     msg_subject='subject test email',
-    #     msg_content='Test Content email'
-    # )
-    cuID = teacher_row.id
-
-    osmail.send(msgID, cuID)
+    osmail.send(msgID, subrow.auth_teacher_id)
 
 
 def sub_avail_accept_send_mail(cotcsaID):
@@ -5036,8 +5030,8 @@ def sub_avail_accept_send_mail(cotcsaID):
     Send a decline email
     """
     from openstudio.os_mail import OsMail
-    cotcsarow = db.classes_otc_sub_avail(id = cotcsaID)
-    teacher_row = db.auth_user(id = cotcsarow.auth_teacher_id)
+    subrow = db.classes_otc_sub_avail(id = cotcsaID)
+    teacher_row = db.auth_user(id = subrow.auth_teacher_id)
     # print (str(teacher_row.full_name) + ' gets a rejection email')
 
     osmail = OsMail()
@@ -5045,13 +5039,17 @@ def sub_avail_accept_send_mail(cotcsaID):
         'teacher_accept_sub_request',
         classes_otc_sub_avail_id=cotcsaID
     )
-    # msgID = db.messages.insert(
-    #     msg_subject='subject test email',
-    #     msg_content='Test Content email'
-    # )
-    cuID = teacher_row.id
-
-    osmail.send(msgID, cuID)
+    osmail.send(msgID, subrow.auth_teacher_id)
+    query = ((db.classes_otc_sub_avail.auth_teacher_id != subrow.auth_teacher_id) &\
+             (db.classes_otc_sub_avail.classes_otc_id == subrow.classes_otc_id))
+    rows = db(query).select()
+    for row in rows:
+        osmail = OsMail()
+        msgID = osmail.render_email_template(
+            'teacher_reject_sub_request',
+            classes_otc_sub_avail_id=row.id
+        )
+        osmail.send(msgID, row.auth_teacher_id)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
