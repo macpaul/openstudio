@@ -5012,7 +5012,9 @@ def sub_avail_decline_send_mail(cotcsaID):
     """
     Send a decline email
     """
-    print 'Here comes an email'
+    cotcsarow = db.classes_otc_sub_avail(id = cotcsaID)
+    teacher_row = db.auth_user(id = cotcsarow.auth_teacher_id)
+    print str(teacher_row.full_name) + ' gets a rejection email'
     
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_revenue'))
