@@ -206,6 +206,22 @@ class OsMail:
         )
 
 
+    def _render_email_template_teacher_reject_sub_request(self, template_content):
+        """
+        Render email to send to rejected sub teacher
+        :param template_content: html template code from db.sys_properties
+        :return:
+        """
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+
+        return XML(template_content
+
+        )
+    #def _render_email_template_teacher_accept_sub_request
+
+
     def _render_email_workshops_info_mail(self, wspc, wsp, ws):
         """
         :param template_content: Mail content
@@ -312,6 +328,10 @@ class OsMail:
         elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
+        elif email_template == 'teacher_reject_sub_request':
+            subject = T('Sub request declined')
+            content = self._render_email_template_teacher_reject_sub_request(template_content)
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

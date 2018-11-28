@@ -5415,6 +5415,11 @@ def setup_set_email_templates():
             <p>&nbsp;</p>
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
+        [
+            'teacher_reject_sub_request',
+            'Sub request denied',
+            """<p> Your sub request for Date has sadly been rejected"""
+        ]
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(
