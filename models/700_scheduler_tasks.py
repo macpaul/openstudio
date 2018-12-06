@@ -166,6 +166,7 @@ scheduler_tasks = {
     'customers_subscriptions_create_invoices_for_month': os_scheduler_tasks.customers_subscriptions_create_invoices_for_month,
     'customers_subscriptions_add_credits_for_month': os_scheduler_tasks.customers_subscriptions_add_credits_for_month,
     'customers_membership_renew_expired': os_scheduler_tasks.customers_memberships_renew_expired,
+    'teachers_reminder_sub_request': os_scheduler_tasks.teachers_reminder_sub_request,
     'customers_subscriptions_collect_mollie_recurring_current_month': task_mollie_subscription_invoices_and_payments,
     'openstudio_test_task': task_openstudio_test
 }
