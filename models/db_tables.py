@@ -5439,6 +5439,18 @@ def setup_set_email_templates():
             <p>Best regards,</p>
             <p>The Office Team</p>"""
         ],
+        [
+            'teacher_reminder_sub_request',
+            'Reminder sub request',
+            """<p>Dear {teacher_name},</p>
+            <p>We would like to remind you, that there is an open {class_type} class in {class_location} on the {class_date} 
+            at {class_starttime} that needs substitution.</p>
+            <p>&nbsp;</p>
+            <p>We thank you for considering to sub this class.</p>
+            <p>&nbsp;</p>
+            <p>Best regards,</p>
+            <p>The Office Team</p>"""
+        ],
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(
