@@ -13,22 +13,25 @@ def index():
          and not auth.has_membership(group_id='Admins') ):
         redirect(URL('default', 'user', args=['not_authorized']))
 
-    db.sys_email_templates.insert(
-            Name='teacher_reminder_sub_request',
-            Title='Reminder sub request',
-            TemplateContent="""<p>Dear {teacher_name},</p>
-            <p>We would like to remind you, that there is an open {class_type} class in {class_location} on the {class_date} 
-            at {class_starttime} that needs substitution.</p>
-            <p>&nbsp;</p>
-            <p>We thank you for considering to sub this class.</p>
-            <p>&nbsp;</p>
-            <p>Best regards,</p>
-            <p>The Office Team</p>"""
 
-    )
     ost = OsSchedulerTasks()
     #
     # year = request.vars['year']
     # month = request.vars['month']
 
-    ost.teachers_reminder_sub_requests()
+    ost.teachers_reminder_sub_request()
+    # scheduler.queue_task(
+    #     'teachers_reminder_sub_request',
+    #     pvars={},
+    #     stop_time=datetime.datetime.now() + datetime.timedelta(hours=1),
+    #     last_run_time=datetime.datetime(1963, 8, 28, 14, 30),
+    #     timeout=1800,  # run for max. half an hour.
+    # )
+    #
+    # session.flash = SPAN(
+    #     T("Started renewing customer memberships... "),
+    #     T("please refresh this page in a few minutes."), BR(),
+    #     T(
+    #         "Please note that you can continue to work on other things in the meantime and you don't have to wait on this page.")
+    # )
+    # redirect(URL('index'))
