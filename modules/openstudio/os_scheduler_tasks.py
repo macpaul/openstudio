@@ -279,3 +279,43 @@ class OsSchedulerTasks:
         db.commit()
 
         return T("Memberships renewed") + ': ' + unicode(renewed)
+
+
+    def teachers_reminder_sub_request(self):
+        """
+            Sends a reminder email if there is an open sub request
+        """
+        from openstudio.os_mail import OsMail
+        emails = 0
+        query = (db.classes_otc.Status == 'open')
+        rows = db(query).select()
+        if rows:
+            for row in rows:
+                classes_row = db.classes(id = row.classes_id)
+
+                query = ((db.auth_user.teacher == True))
+                user_rows = db(query).select()
+                for user_row in user_rows:
+                    query = ((db.teachers_classtypes.auth_user_id == user_row.id) &\
+                             (db.teachers_classtypes.school_classtypes_id == classes_row.school_classtypes_id)&\
+                             (db.classes_teachers.classes_id == classes_row.id) &\
+                             (db.classes_teachers.auth_teacher_id != user_row.id)&\
+                             (db.classes_teachers.auth_teacher_id2 != user_row.id))
+                    if db(query).select().first():
+                        osmail = OsMail()
+                        msgID = osmail.render_email_template(
+                            'teacher_reminder_sub_request',
+                            classes_otc_id=row.id,
+                            auth_user_id=user_row.id
+                        )
+                        osmail.send(msgID, user_row.id)
+                        emails += 1
+
+
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return T("Emails send") + ': ' + unicode(renewed)
