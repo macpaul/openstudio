@@ -5568,6 +5568,42 @@ def setup_set_email_templates():
             <p>&nbsp;</p>
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
+        [
+            'teacher_reject_sub_request',
+            'Sub request denied',
+            """<p>Dear {teacher_name},</p>
+            <p>We are sorry to inform you, that the {class_type} class in {class_location} on the {class_date} 
+            at {class_starttime} is being subbed by another teacher.</p>
+            <p>&nbsp;</p>
+            <p>We thank you for your request.</p>
+            <p>&nbsp;</p>
+            <p>Best regards,</p>
+            <p>The Office Team</p>"""
+        ],
+        [
+            'teacher_accept_sub_request',
+            'Sub request accepted',
+            """<p>Dear {teacher_name},</p>
+            <p>We would like to inform you, that your request to the {class_type} class in {class_location} on the {class_date} 
+            at {class_starttime} has been accepted!</p>
+            <p>&nbsp;</p>
+            <p>We thank you for subbing the class.</p>
+            <p>&nbsp;</p>
+            <p>Best regards,</p>
+            <p>The Office Team</p>"""
+        ],
+        [
+            'teacher_reminder_sub_request',
+            'Reminder sub request',
+            """<p>Dear {teacher_name},</p>
+            <p>We would like to remind you, that there is an open {class_type} class in {class_location} on the {class_date} 
+            at {class_starttime} that needs substitution.</p>
+            <p>&nbsp;</p>
+            <p>We thank you for considering to sub this class.</p>
+            <p>&nbsp;</p>
+            <p>Best regards,</p>
+            <p>The Office Team</p>"""
+        ],
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(
