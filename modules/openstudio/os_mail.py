@@ -335,7 +335,7 @@ class OsMail:
                               template_content=None,
                               auth_user_id = None,
                               customers_orders_id=None,
-                              classes_otc_id = None,
+                              classes_otc_id_list = None,
                               classes_otc_sub_avail_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
@@ -392,7 +392,7 @@ class OsMail:
 
         elif email_template == 'teacher_reminder_sub_request':
             subject = T('Reminder sub request')
-            content = self._render_email_template_teacher_reminder_sub_request(template_content, classes_otc_id, auth_user_id)
+            content = self._render_email_template_teacher_reminder_sub_request(template_content, classes_otc_id_list, auth_user_id)
 
         elif email_template == 'teacher_reject_sub_request':
             subject = T('Sub request declined')
