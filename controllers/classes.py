@@ -4996,6 +4996,7 @@ def sub_avail_accept():
     # Set teacher as sub
     cotc = db.classes_otc(row.classes_otc_id)
     cotc.auth_teacher_id = row.auth_teacher_id
+    cotc.Status = None
     cotc.update_record()
 
     # Reject all others
