@@ -230,7 +230,7 @@ class OsMail:
             class_starttime = repr_row.Starttime,
         ))
 
-    def _render_email_template_teacher_reminder_sub_request(self, template_content, classes_otc_id, auth_user_id):
+    def _render_email_template_teacher_reminder_sub_request(self, template_content, classes_otc_id_list, auth_user_id):
         """
         Render email to send to rejected sub teacher
         :param template_content: html template code from db.sys_properties
@@ -239,19 +239,26 @@ class OsMail:
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
-        classes_otc = db.classes_otc(id = classes_otc_id)
+        # classes_otc = db.classes_otc(id = classes_otc_id)
         teacher = db.auth_user(id = auth_user_id)
-        # classes_row = db.classes (id =classes_otc_row.classes_id)
-        query = (db.classes.id == classes_otc.classes_id)
-        row = db(query).select()
 
-        repr_row = row.render(0)
+        list = P()
+        for row_id in classes_otc_id_list:
+            otc_row = db.classes_otc(id = row_id)
+            query = (db.classes.id == otc_row.classes_id)
+            row = db(query).select()
+            repr_row = row.render(0)
+            list += P(T(repr_row.school_classtypes_id + " class in " + repr_row.school_locations_id + " on the " +
+                                str(otc_row.ClassDate) + " at " + repr_row.Starttime))
+            # class_location = repr_row.school_locations_id,
+            # class_type =repr_row.school_classtypes_id,
+            # class_date = classes_otc.ClassDate,
+            # class_starttime = repr_row.Starttime,
+        classes_list = DIV(list)
         return XML(template_content.format(
             teacher_name = teacher.full_name,
-            class_location = repr_row.school_locations_id,
-            class_type =repr_row.school_classtypes_id,
-            class_date = classes_otc.ClassDate,
-            class_starttime = repr_row.Starttime,
+            classes_list = classes_list
+
         ))
 
 

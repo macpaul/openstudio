@@ -19,7 +19,7 @@ def index():
     # year = request.vars['year']
     # month = request.vars['month']
 
-    ost.teachers_reminder_sub_request()
+    print (ost.teachers_reminder_sub_request())
     # scheduler.queue_task(
     #     'teachers_reminder_sub_request',
     #     pvars={},
